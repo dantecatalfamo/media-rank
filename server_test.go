@@ -64,7 +64,7 @@ func TestServer(t *testing.T) {
 		if err != nil {
 			t.Fatalf("failed to create new server: %s", err)
 		}
-		_, err = s.db.Exec("INSERT INTO media(path, sha1sum, score) VALUES ('a', 'abc', 123), ('b', 'bcd', 456)")
+		_, err = s.db.Exec("INSERT INTO media(path, sha1sum, score, matches) VALUES ('a', 'abc', 123, 0), ('b', 'bcd', 456, 12)")
 		if err != nil {
 			t.Errorf("failed to insert test data: %s", err)
 		}
@@ -81,6 +81,9 @@ func TestServer(t *testing.T) {
 		if media1.Score != 123 {
 			t.Errorf("expected media1.Score to be 123, found %d", media1.Score)
 		}
+		if media1.Matches != 0 {
+			t.Errorf("expected media1.Matches to be 0, found %d", media1.Matches)
+		}
 		media2, err := s.GetMediaInfo(2)
 		if err != nil {
 			t.Errorf("failed to get media: %s", err)
@@ -93,6 +96,9 @@ func TestServer(t *testing.T) {
 		}
 		if media2.Score != 456 {
 			t.Errorf("expected media2.Score to be 345, found %d", media2.Score)
+		}
+		if media2.Matches != 12 {
+			t.Errorf("expected media2.Matches to be 12, found %d", media2.Matches)
 		}
 	})
 
