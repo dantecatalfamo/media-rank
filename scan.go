@@ -19,7 +19,11 @@ var acceptedFileTypes = []string{
 }
 
 func isMediaFile(path string) bool {
-	ext := filepath.Ext(path)[1:]
+	extDot := filepath.Ext(path)
+	if len(extDot) < 2 {
+		return false
+	}
+	ext := extDot[1:]
 	for _, allowed := range(acceptedFileTypes) {
 		if ext == allowed {
 			return true
