@@ -8,6 +8,12 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+type MediaInfo struct {
+	Path string `json:"path"`
+	Sha1 string `json:"sha1"`
+	Score int   `json:"score"`
+}
+
 const schema = `
 CREATE TABLE IF NOT EXISTS media (
   id INTEGER PRIMARY KEY,
@@ -54,7 +60,52 @@ type Server struct {
 	db *sql.DB
 }
 
-func (s *Server) updateScores(winnerId int, loserId int) error {
+const insertMediaQuery = `
+INSERT INTO media(path, sha1sum, score) VALUES (?, ?, 1500)
+  ON CONFLICT(sha1sum) DO UPDATE SET path = ?
+`
+func (s *Server) InsertMedia(path string, sha1sum string) (int64, error) {
+	result, err := s.db.Exec(insertMediaQuery, path, sha1sum, path)
+	if err != nil {
+		return 0, fmt.Errorf("failed to insert media into db: %w", err)
+	}
+	rowId, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get ID of inserted media: %w", err)
+	}
+	return rowId, nil
+}
+
+func (s *Server) GetMediaInfo(mediaId int64) (MediaInfo, error) {
+	row := s.db.QueryRow("SELECT path, sha1sum, score FROM media WHERE id = ?", mediaId)
+	if row.Err() != nil {
+		return MediaInfo{}, fmt.Errorf("failed to get media info from db: %w", row.Err())
+	}
+	var mediaPath string
+	var sha1 string
+	var score int
+
+	if err := row.Scan(&mediaPath, &sha1, &score); err != nil {
+		return MediaInfo{}, fmt.Errorf("get media failed to scan row: %w", err)
+	}
+
+	return MediaInfo{ Path: mediaPath, Sha1: sha1, Score: score }, nil
+}
+
+func (s *Server) MediaCount() (int64, error) {
+	row := s.db.QueryRow("SELECT COUNT(*) FROM media")
+	if row.Err() != nil {
+		return 0, fmt.Errorf("media count failed to query: %w", row.Err())
+	}
+	var rowCount int64
+	if err := row.Scan(&rowCount); err != nil {
+		return 0, fmt.Errorf("media count failed to scan row: %w", err)
+	}
+
+	return rowCount, nil
+}
+
+func (s *Server) UpdateScores(winnerId int64, loserId int64) error {
 	winnerRow := s.db.QueryRow("SELECT score FROM media WHERE id = ?", winnerId)
 	if winnerRow.Err() != nil {
 		return fmt.Errorf("update scores fetch winner row: %w", winnerRow.Err())

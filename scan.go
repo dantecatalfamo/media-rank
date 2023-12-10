@@ -10,12 +10,6 @@ import (
 	"strings"
 )
 
-type MediaInfo struct {
-	Path string `json:"path"`
-	Sha1 string `json:"sha1"`
-	Score int   `json:"score"`
-}
-
 var acceptedFileTypes = []string{
 	"jpg",
 	"png",
@@ -23,11 +17,6 @@ var acceptedFileTypes = []string{
 	"mp4",
 	"webm",
 }
-
-const insertScan = `
-INSERT INTO media(path, sha1sum, score) VALUES (?, ?, 1500)
-  ON CONFLICT(sha1sum) DO UPDATE SET path = ?
-`
 
 func isMediaFile(path string) bool {
 	ext := filepath.Ext(path)[1:]
@@ -58,7 +47,10 @@ func scanMedia(server *Server, mediaPath string) error {
 		}
 		sha1sum := sha1.Sum(fileData)
 		sha1hex := fmt.Sprintf("%x", sha1sum)
-		server.db.Exec(insertScan, path, sha1hex, path)
+		_, err = server.InsertMedia(path, sha1hex)
+		if err != nil {
+			return fmt.Errorf("failed to insert scanned media: %w", err)
+		}
 		log.Printf("inserted %s into db\n", sha1hex)
 
 		return nil
