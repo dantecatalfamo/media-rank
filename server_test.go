@@ -263,4 +263,8 @@ func TestServer(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("SelectMediaForComparison returns valid media", func(t *testing.T) {
+		// TODO
+	})
 }
