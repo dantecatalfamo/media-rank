@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"math"
 
@@ -163,6 +164,8 @@ func (s *Server) UpdateScores(winnerId int64, loserId int64) error {
 	return nil
 }
 
+var NotEnoughMediaError = errors.New("not enough media in database")
+
 func (s *Server) SelectMediaForComparison() (MediaInfo, MediaInfo, error) {
 	// FIXME This can be slow on large tables. It could be preferable
 	// to get the number of records, select two random numbers within
@@ -175,25 +178,29 @@ func (s *Server) SelectMediaForComparison() (MediaInfo, MediaInfo, error) {
 
 	var id1, id2 int64
 	if !rows.Next() {
-		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison not enough rows")
+		return MediaInfo{}, MediaInfo{}, NotEnoughMediaError
 	}
 	if err := rows.Scan(&id1); err != nil {
-		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison failed to scan: %s", err)
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison failed to scan: %w", err)
 	}
 	if !rows.Next() {
-		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison not enough rows")
+		return MediaInfo{}, MediaInfo{}, NotEnoughMediaError
 	}
 	if err := rows.Scan(&id2); err != nil {
-		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison failed to scan: %s", err)
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison failed to scan: %w", err)
+	}
+
+	if err := rows.Close(); err != nil {
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison failed to close rows: %w", err)
 	}
 
 	media1, err := s.GetMediaInfo(id1)
 	if err != nil {
-		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparisons failed to get media info: %s", err)
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparisons failed to get media1 info: %w", err)
 	}
 	media2, err := s.GetMediaInfo(id2)
 	if err != nil {
-		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparisons failed to get media info: %s", err)
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparisons failed to get media2 info: %w", err)
 	}
 
 	return media1, media2, nil

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -105,6 +106,11 @@ func TestServer(t *testing.T) {
 		}
 		if media2.Matches != 12 {
 			t.Errorf("expected media2.Matches to be 12, found %d", media2.Matches)
+		}
+
+		mediaFail, err := s.GetMediaInfo(999)
+		if err == nil {
+			t.Errorf("expected db error, not nil and result: %+v", mediaFail)
 		}
 	})
 
@@ -265,6 +271,34 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("SelectMediaForComparison returns valid media", func(t *testing.T) {
-		// TODO
+		s, err := NewServer(":memory:")
+		if err != nil {
+			t.Fatalf("failed to create new server: %s", err)
+		}
+		id1, err := s.InsertMedia("fakepath", "aaa")
+		if err != nil {
+			t.Fatalf("failed to insert media: %s", err)
+		}
+		_, _, err = s.SelectMediaForComparison()
+		if !errors.Is(err, NotEnoughMediaError) {
+			t.Errorf("expected call to fail because there aren't enough entries in db, got: %s", err)
+		}
+		id2, err := s.InsertMedia("fakepath2", "bbb")
+		if err != nil {
+			t.Fatalf("failed to insert media: %s", err)
+		}
+		media1, media2, err := s.SelectMediaForComparison()
+		if err != nil {
+			t.Fatalf("failed to select media for comparison: %s", err)
+		}
+		if media1.Id == media2.Id {
+			t.Errorf("returned two copies of the same media: %d", media1.Id)
+		}
+		if media1.Id != id1 && media1.Id != id2 {
+			t.Errorf("expected media1 to contain id1 (%d) or id2 (%d), found %d", id1, id2, media1.Id)
+		}
+		if media2.Id != id1 && media1.Id != id2 {
+			t.Errorf("expected media2 to contain id1 (%d) or id2 (%d), found %d", id1, id2, media1.Id)
+		}
 	})
 }
