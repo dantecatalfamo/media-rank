@@ -163,6 +163,42 @@ func (s *Server) UpdateScores(winnerId int64, loserId int64) error {
 	return nil
 }
 
+func (s *Server) SelectMediaForComparison() (MediaInfo, MediaInfo, error) {
+	// FIXME This can be slow on large tables. It could be preferable
+	// to get the number of records, select two random numbers within
+	// that range and then query for them manually
+	// http://www.titov.net/2005/09/21/do-not-use-order-by-rand-or-how-to-get-random-rows-from-table/
+	rows, err := s.db.Query("SELECT id FROM media ORDER BY RANDOM() LIMIT 2")
+	if err != nil {
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select media for comparison query failed: %w", err)
+	}
+
+	var id1, id2 int64
+	if !rows.Next() {
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison not enough rows")
+	}
+	if err := rows.Scan(&id1); err != nil {
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison failed to scan: %s", err)
+	}
+	if !rows.Next() {
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison not enough rows")
+	}
+	if err := rows.Scan(&id2); err != nil {
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparison failed to scan: %s", err)
+	}
+
+	media1, err := s.GetMediaInfo(id1)
+	if err != nil {
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparisons failed to get media info: %s", err)
+	}
+	media2, err := s.GetMediaInfo(id2)
+	if err != nil {
+		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select comparisons failed to get media info: %s", err)
+	}
+
+	return media1, media2, nil
+}
+
 func calculateNewEloScores(winnerScore, loserScore int) (winnerNewScore, loserNewScore int) {
 	// Good reference https://www.omnicalculator.com/sports/elo
 	developmentCoefficient := 30.0
