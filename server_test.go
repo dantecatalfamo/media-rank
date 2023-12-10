@@ -144,6 +144,9 @@ func TestServer(t *testing.T) {
 		if media1.Score != 1500 {
 			t.Errorf("expected media1.Score to be 1500, found %d", media1.Score)
 		}
+		if media1.Matches != 0 {
+			t.Errorf("expected media1.Matches to be 0, found %d", media1.Matches)
+		}
 	})
 
 	t.Run("InsertMedia updates path if sha1 already exists", func(t *testing.T) {
