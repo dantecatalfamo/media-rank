@@ -1,10 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"path"
 )
 
 const (
@@ -13,15 +13,23 @@ const (
 )
 
 func main() {
-	mediaDirectory := os.Args[1]
-	dbPath := path.Join(mediaDirectory, dbName)
+	if len(os.Args) < 2 {
+		fmt.Fprintf(os.Stderr, "usage: %s <media directory>\n", os.Args[0])
+		os.Exit(1)
+	}
 
-	server, err := NewServer(dbPath)
+	mediaDirectory := os.Args[1]
+
+	if err := os.Chdir(mediaDirectory); err != nil {
+		log.Fatalf("failed to change to media directory: %s", err)
+	}
+
+	server, err := NewServer(dbName)
 	if err != nil {
 		log.Fatalf("creating new server: %s", err)
 	}
-	log.Print(server)
-	scanMedia(server, mediaDirectory)
+
+	scanMedia(server, ".")
 	log.Printf("Starting server on http://%s\n", address)
 	err = http.ListenAndServe(address, nil)
 	if err != nil {

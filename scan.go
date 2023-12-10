@@ -41,7 +41,7 @@ func scanMedia(server *Server, mediaPath string) error {
 		} else if d.IsDir() {
 			log.Printf("dir: %s\n", path)
 			return nil
-		} else if !isMediaFile(path) {
+		} else if !isMediaFile(path) || !d.Type().IsRegular() {
 			return nil
 		}
 		fileData, err := ioutil.ReadFile(path)
