@@ -193,12 +193,41 @@ func TestServer(t *testing.T) {
 			if err != nil {
 				t.Errorf("failed to insert media: %s", err)
 			}
+			_, err = s.db.Exec("UPDATE media SET score = ? WHERE id = ?", test.winnerBefore, winnerId)
+			if err != nil {
+				t.Errorf("failed to set winner score: %s", err)
+			}
 			loserId, err := s.InsertMedia("alsofakepath", "bbb")
 			if err != nil {
 				t.Errorf("failed to insert media: %s", err)
 			}
-			_ = winnerId
-			_ = loserId
+			_, err = s.db.Exec("UPDATE media SET score = ? WHERE id = ?", test.loserBefore, loserId)
+			if err != nil {
+				t.Errorf("failed to set loser score: %s", err)
+			}
+			if err := s.UpdateScores(winnerId, loserId); err != nil {
+				t.Errorf("failed to update scores: %s", err)
+			}
+			winnerInfo, err := s.GetMediaInfo(winnerId)
+			if err != nil {
+				t.Errorf("failed to get winner media info: %s", err)
+			}
+			loserInfo, err := s.GetMediaInfo(loserId)
+			if err != nil {
+				t.Errorf("failed to get loser media info: %s", err)
+			}
+			if winnerInfo.Score != test.winnerAfter {
+				t.Errorf("expected winnerInfo.Score to be %d, found %d", test.winnerAfter, winnerInfo.Score)
+			}
+			if winnerInfo.Matches != 1 {
+				t.Errorf("expected winnerInfo.Matches to be 1, found %d", winnerInfo.Matches)
+			}
+			if loserInfo.Score != test.loserAfter {
+				t.Errorf("expected loserInfo.Score to be %d, found %d", test.loserAfter, loserInfo.Score)
+			}
+			if loserInfo.Matches != 1 {
+				t.Errorf("expected loserInfo.Matches to be 1, found %d", loserInfo.Matches)
+			}
 		}
 	})
 }
