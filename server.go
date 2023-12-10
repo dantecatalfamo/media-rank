@@ -51,6 +51,9 @@ func NewServer(dbPath string) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("new server open db: %w", err)
 	}
+	// Prevent memory-backed DBs from opening independant DBs on
+	// concurrent requests
+	db.SetMaxOpenConns(1)
 	_, err = db.Exec(schema)
 	if err != nil {
 		return nil, fmt.Errorf("new server migration: %w", err)

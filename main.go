@@ -29,7 +29,12 @@ func main() {
 		log.Fatalf("creating new server: %s", err)
 	}
 
-	scanMedia(server, ".")
+	log.Println("beginning media scan")
+	go scanMedia(server, ".")
+
+	log.Println("setting up routes")
+	SetupRoutes(server)
+
 	log.Printf("Starting server on http://%s\n", address)
 	err = http.ListenAndServe(address, nil)
 	if err != nil {

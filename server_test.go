@@ -297,7 +297,7 @@ func TestServer(t *testing.T) {
 		if media1.Id != id1 && media1.Id != id2 {
 			t.Errorf("expected media1 to contain id1 (%d) or id2 (%d), found %d", id1, id2, media1.Id)
 		}
-		if media2.Id != id1 && media1.Id != id2 {
+		if media2.Id != id1 && media2.Id != id2 {
 			t.Errorf("expected media2 to contain id1 (%d) or id2 (%d), found %d", id1, id2, media1.Id)
 		}
 	})
