@@ -9,6 +9,7 @@ import (
 )
 
 type MediaInfo struct {
+	Id int64    `json:"id"`
 	Path string `json:"path"`
 	Sha1 string `json:"sha1"`
 	Score int   `json:"score"`
@@ -65,6 +66,7 @@ const insertMediaQuery = `
 INSERT INTO media(path, sha1sum, score, matches) VALUES (?, ?, 1500, 0)
   ON CONFLICT(sha1sum) DO UPDATE SET path = ?
 `
+
 func (s *Server) InsertMedia(path string, sha1sum string) (int64, error) {
 	result, err := s.db.Exec(insertMediaQuery, path, sha1sum, path)
 	if err != nil {
@@ -78,20 +80,21 @@ func (s *Server) InsertMedia(path string, sha1sum string) (int64, error) {
 }
 
 func (s *Server) GetMediaInfo(mediaId int64) (MediaInfo, error) {
-	row := s.db.QueryRow("SELECT path, sha1sum, score, matches FROM media WHERE id = ?", mediaId)
+	row := s.db.QueryRow("SELECT id, path, sha1sum, score, matches FROM media WHERE id = ?", mediaId)
 	if row.Err() != nil {
 		return MediaInfo{}, fmt.Errorf("failed to get media info from db: %w", row.Err())
 	}
+	var id int64
 	var mediaPath string
 	var sha1 string
 	var score int
 	var matches int
 
-	if err := row.Scan(&mediaPath, &sha1, &score, &matches); err != nil {
+	if err := row.Scan(&id, &mediaPath, &sha1, &score, &matches); err != nil {
 		return MediaInfo{}, fmt.Errorf("get media failed to scan row: %w", err)
 	}
 
-	return MediaInfo{ Path: mediaPath, Sha1: sha1, Score: score, Matches: matches }, nil
+	return MediaInfo{ Id: id, Path: mediaPath, Sha1: sha1, Score: score, Matches: matches }, nil
 }
 
 func (s *Server) MediaCount() (int64, error) {

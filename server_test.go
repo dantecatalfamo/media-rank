@@ -72,6 +72,9 @@ func TestServer(t *testing.T) {
 		if err != nil {
 			t.Errorf("failed to get media: %s", err)
 		}
+		if media1.Id != 1 {
+			t.Errorf("expected media1.Id to be 1, found %d", media1.Id)
+		}
 		if media1.Path != "a" {
 			t.Errorf("expected media1.Path to be \"a\", found %s", media1.Path)
 		}
@@ -87,6 +90,9 @@ func TestServer(t *testing.T) {
 		media2, err := s.GetMediaInfo(2)
 		if err != nil {
 			t.Errorf("failed to get media: %s", err)
+		}
+		if media2.Id != 2 {
+			t.Errorf("expected media2.Id to be 2, found %d", media2.Id)
 		}
 		if media2.Path != "b" {
 			t.Errorf("expected media2.Path to be \"b\", found %s", media2.Path)
@@ -146,6 +152,9 @@ func TestServer(t *testing.T) {
 		}
 		if media1.Matches != 0 {
 			t.Errorf("expected media1.Matches to be 0, found %d", media1.Matches)
+		}
+		if media1.Id != row1 {
+			t.Errorf("expected media1.Id to be %d, found %d", row1, media1.Id)
 		}
 	})
 
