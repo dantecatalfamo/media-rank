@@ -12,10 +12,11 @@ import (
 
 var acceptedFileTypes = []string{
 	"jpg",
+	"jpeg",
 	"png",
 	"gif",
-	"mp4",
-	"webm",
+	// "mp4",
+	// "webm",
 }
 
 func isMediaFile(path string) bool {
@@ -59,5 +60,6 @@ func scanMedia(server *Server, mediaPath string) error {
 
 		return nil
 	})
+	log.Println("finished scanning files")
 	return nil
 }
