@@ -53,7 +53,9 @@ const indexTemplate = `
     max-width: 100%;
   }
   .image {
-    text-align: center;
+    display: flex;
+    align-self: center;
+    justify-content: center;
   }
 </style>
 </head>
