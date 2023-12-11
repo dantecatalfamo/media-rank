@@ -57,20 +57,33 @@ const indexTemplate = `
     align-self: center;
     justify-content: center;
   }
+  form {
+    text-align: center;
+  }
+  input[type=submit] {
+    font-size: larger;
+  }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="image">
-    <img src="/media/{{.Media1.Id}}">
+    <img src="/media/{{.Media1.Id}}" title="Id: {{.Media1.Id}}, Score: {{.Media1.Score}}">
   </div>
   <div class="image">
-    <img src="/media/{{.Media2.Id}}">
+    <img src="/media/{{.Media2.Id}}" title="Id: {{.Media2.Id}}, Score: {{.Media2.Score}}">
   </div>
-  <button>Left image</button>
-  <button>Right image</button>
+  <form action="/vote" method="POST">
+    <input type="hidden" name="loser" value="{{.Media2.Id}}">
+    <input type="hidden" name="winner" value="{{.Media1.Id}}">
+    <input type="submit" value="Winner">
+  </form>
+  <form action="/vote" method="POST">
+    <input type="hidden" name="loser" value="{{.Media1.Id}}">
+    <input type="hidden" name="winner" value="{{.Media2.Id}}">
+    <input type="submit" value="Winner">
+  </form>
 </div>
-{{.}}
 </body>
 </html>
 `
@@ -111,4 +124,26 @@ func (c *Controller) Media(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to write media file", 500)
 		return
 	}
+}
+
+func (c *Controller) Vote(w http.ResponseWriter, r *http.Request) {
+	winner := r.FormValue("winner")
+	loser := r.FormValue("loser")
+	winnerId, err := strconv.Atoi(winner)
+	if err != nil {
+		http.Error(w, "invalid request", 400)
+		return
+	}
+	loserId, err := strconv.Atoi(loser)
+	if err != nil {
+		http.Error(w, "invalid request", 400)
+		return
+	}
+	log.Printf("winner: %s, loser: %s", winner, loser)
+	if err := c.s.UpdateScores(int64(winnerId), int64(loserId)); err != nil {
+		log.Printf("failed to update scores. winner: %d, loser: %d", winnerId, loserId)
+		http.Error(w, "error updating database", 500)
+		return
+	}
+	http.Redirect(w, r, "/", 302)
 }
