@@ -37,10 +37,10 @@ func scanMedia(server *Server, mediaPath string) error {
 	log.Printf("beginning scan of path %s\n", mediaPath)
 	filepath.WalkDir(mediaPath, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() && strings.Contains(d.Name(), ".git") {
-			log.Printf("skipping %s\n", d.Name())
+			fmt.Printf("[#%s]", d.Name())
 			return filepath.SkipDir
 		} else if d.IsDir() {
-			log.Printf("dir: %s\n", path)
+			fmt.Printf("[%s]", path)
 			return nil
 		} else if !isMediaFile(path) || !d.Type().IsRegular() {
 			return nil
@@ -56,10 +56,11 @@ func scanMedia(server *Server, mediaPath string) error {
 		if err != nil {
 			return fmt.Errorf("failed to insert scanned media: %w", err)
 		}
-		log.Printf("inserted %s into db\n", sha1hex)
+		fmt.Printf(".")
 
 		return nil
 	})
+	fmt.Println()
 	log.Println("finished scanning files")
 	return nil
 }
