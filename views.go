@@ -56,14 +56,35 @@ const listView = `
 <head>
 <title>Media Rank</title>
 <style>
+  table {
+    margin: auto;
+  }
+  .table-number, .table-score {
+    text-align: right;
+  }
+  th {
+    border-bottom: 1px solid black;
+  }
+  img {
+    max-height: 80px;
+    max-width: 80px;
+  }
 </style>
 </head>
 <body>
   <table>
-  {{range .List}}
+  <tr>
+    <th>Rank</th>
+    <th>Score</th>
+    <th>File</th>
+    <th>Preview</th>
+  </tr>
+  {{range $i, $e := .List}}
     <tr>
-    <td><a href="/media/{{.Id}}">{{.Path}}</a></td>
-    <td>{{.Score}}</td>
+      <td class="table-number">{{$i}}</td>
+      <td class="table-score">{{$e.Score}}</td>
+      <td class="table-path">{{.Path}}</a></td>
+      <td class="table-image"><a href="/media/{{$e.Id}}"><img src="/media/{{$e.Id}}" loading="lazy"></a></td>
     </tr>
   {{end}}
   </table>
