@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 )
@@ -71,6 +72,7 @@ func (c *Controller) Media(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", stat.Size()))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", path.Base(mediaInfo.Path)))
 
 	// default response writer automatically detects mime types
 	_, err = io.Copy(w, f)
