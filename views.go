@@ -118,7 +118,7 @@ const listView = `
     <tr>
       <td class="table-number">{{$i}}</td>
       <td class="table-score">{{$e.Score}}</td>
-      <td class="table-image"><a href="/media/{{$e.Id}}"><img title={{.Path}} src="/media/{{$e.Id}}" loading="lazy"></a></td>
+      <td class="table-image"><a href="/media/{{$e.Id}}" target="_blank"><img title={{.Path}} src="/media/{{$e.Id}}" loading="lazy"></a></td>
     </tr>
   {{end}}
   </table>
