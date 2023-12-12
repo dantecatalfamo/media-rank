@@ -1,4 +1,4 @@
-module github.com/dantecatalfamo/media-elo
+module github.com/dantecatalfamo/media-rank
 
 go 1.19
 
