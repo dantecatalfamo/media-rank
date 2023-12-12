@@ -111,6 +111,19 @@ func (s *Server) MediaCount() (int64, error) {
 	return rowCount, nil
 }
 
+func (s *Server) HistoryCount() (int64, error) {
+	row := s.db.QueryRow("SELECT COUNT(*) FROM comparisons")
+	if row.Err() != nil {
+		return 0, fmt.Errorf("HistoryCount failed to query: %w", row.Err())
+	}
+	var rowCount int64
+	if err := row.Scan(&rowCount); err != nil {
+		return 0, fmt.Errorf("HistoryCount failed to scan row: %w", err)
+	}
+
+	return rowCount, nil
+}
+
 func (s *Server) UpdateScores(winnerId int64, loserId int64) error {
 	winnerRow := s.db.QueryRow("SELECT score FROM media WHERE id = ?", winnerId)
 	if winnerRow.Err() != nil {

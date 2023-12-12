@@ -343,4 +343,42 @@ func TestServer(t *testing.T) {
 			t.Error("incorrect order returned")
 		}
 	})
+
+	t.Run("HistoryCount returns the correct number of rows", func(t *testing.T) {
+		s, err := NewServer(":memory:")
+		if err != nil {
+			t.Fatalf("failed to create new server: %s", err)
+		}
+		id1, err := s.InsertMedia("a", "aaa")
+		if err != nil {
+			t.Fatalf("failed to insert media: %s", err)
+		}
+		id2, err := s.InsertMedia("b", "bbb")
+		if err != nil {
+			t.Fatalf("failed to insert media: %s", err)
+		}
+		count, err := s.HistoryCount()
+		if err != nil {
+			t.Fatalf("failed to get history count: %s", err)
+		}
+		if count != 0 {
+			t.Errorf("expected count to be 0, found %d", count)
+		}
+		if err := s.UpdateScores(id1, id2); err != nil {
+			t.Fatalf("failed to update scores: %s", err)
+		}
+		if err := s.UpdateScores(id1, id2); err != nil {
+			t.Fatalf("failed to update scores: %s", err)
+		}
+		if err := s.UpdateScores(id2, id1); err != nil {
+			t.Fatalf("failed to update scores: %s", err)
+		}
+		count, err = s.HistoryCount()
+		if err != nil {
+			t.Fatalf("failed to get history count: %s", err)
+		}
+		if count != 3 {
+			t.Errorf("expected count to be 3, found %d", count)
+		}
+	})
 }
