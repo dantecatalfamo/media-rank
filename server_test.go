@@ -344,36 +344,23 @@ func TestServer(t *testing.T) {
 		}
 	})
 
-	t.Run("HistoryCount returns the correct number of rows", func(t *testing.T) {
-		s, err := NewServer(":memory:")
-		if err != nil {
-			t.Fatalf("failed to create new server: %s", err)
-		}
-		id1, err := s.InsertMedia("a", "aaa")
-		if err != nil {
-			t.Fatalf("failed to insert media: %s", err)
-		}
-		id2, err := s.InsertMedia("b", "bbb")
-		if err != nil {
-			t.Fatalf("failed to insert media: %s", err)
-		}
-		count, err := s.HistoryCount()
+	t.Run("ComparisonCount returns the correct number of rows", func(t *testing.T) {
+		s := newServer(":memory:", t)
+		id1 := insertMedia(s, "a", "aaa", t)
+		id2 := insertMedia(s, "b", "bbb", t)
+
+		count, err := s.ComparisonCount()
 		if err != nil {
 			t.Fatalf("failed to get history count: %s", err)
 		}
 		if count != 0 {
 			t.Errorf("expected count to be 0, found %d", count)
 		}
-		if err := s.UpdateScores(id1, id2); err != nil {
-			t.Fatalf("failed to update scores: %s", err)
-		}
-		if err := s.UpdateScores(id1, id2); err != nil {
-			t.Fatalf("failed to update scores: %s", err)
-		}
-		if err := s.UpdateScores(id2, id1); err != nil {
-			t.Fatalf("failed to update scores: %s", err)
-		}
-		count, err = s.HistoryCount()
+		updateScores(s, id1, id2, t)
+		updateScores(s, id1, id2, t)
+		updateScores(s, id2, id1, t)
+
+		count, err = s.ComparisonCount()
 		if err != nil {
 			t.Fatalf("failed to get history count: %s", err)
 		}
@@ -381,4 +368,78 @@ func TestServer(t *testing.T) {
 			t.Errorf("expected count to be 3, found %d", count)
 		}
 	})
+
+	t.Run("History returns correct history", func(t *testing.T) {
+		s := newServer(":memory:", t)
+		id1 := insertMedia(s, "a", "aaa", t)
+		id2 := insertMedia(s, "b", "bbb", t)
+
+		updateScores(s, id1, id2, t)
+		updateScores(s, id2, id1, t)
+
+		comparisons, err := s.Comparisons()
+		if err != nil {
+			t.Fatalf("failed to get comparisons: %s", err)
+		}
+
+		if len(comparisons) != 2 {
+			t.Errorf("incorrect number of comparisons, expected 2, found %d", len(comparisons))
+		}
+
+		media1 := getMediaInfo(s, id1, t)
+		media2 := getMediaInfo(s, id2, t)
+
+		compareMediaInfo("fist winner", media2, comparisons[0].Winner, t)
+		compareMediaInfo("first loser", media1, comparisons[0].Loser, t)
+		compareMediaInfo("second loser", media1, comparisons[1].Winner, t)
+		compareMediaInfo("second winner", media2, comparisons[1].Loser, t)
+	})
+}
+
+func newServer(path string, t *testing.T) *Server {
+	s, err := NewServer(":memory:")
+	if err != nil {
+		t.Fatalf("failed to create new server: %s", err)
+	}
+	return s
+}
+
+func insertMedia(s *Server, path, sha1 string, t *testing.T) int64 {
+	id, err := s.InsertMedia(path, sha1)
+	if err != nil {
+		t.Fatalf("failed to insert media: %s", err)
+	}
+	return id
+}
+
+func getMediaInfo(s *Server, id int64, t *testing.T) MediaInfo {
+	info, err := s.GetMediaInfo(id)
+	if err != nil {
+		t.Fatalf("failed to get MediaInfo: %s", err)
+	}
+	return info
+}
+
+func updateScores(s *Server, winner, loser int64, t *testing.T) {
+	if err := s.UpdateScores(winner, loser); err != nil {
+		t.Fatalf("failed to update scores: %s", err)
+	}
+}
+
+func compareMediaInfo(expectedName string, expected, actual MediaInfo, t *testing.T) {
+	if expected.Id != actual.Id {
+		t.Errorf("expected %s MediaInfo.Id to be %d, found %d", expectedName, expected.Id, actual.Id)
+	}
+	if expected.Path != actual.Path {
+		t.Errorf("expected %s MediaInfo.Path to be %s, found %s", expectedName, expected.Path, actual.Path)
+	}
+	if expected.Score != actual.Score {
+		t.Errorf("expected %s MediaInfo.Score to be %d, found %d", expectedName, expected.Score, actual.Score)
+	}
+	if expected.Matches != actual.Matches {
+		t.Errorf("expected %s MediaInfo.Matches to be %d, found %d", expectedName, expected.Matches, actual.Matches)
+	}
+	if expected.Sha1 != actual.Sha1 {
+		t.Errorf("expected %s MediaInfo.Sha1 to be %s, found %s", expectedName, expected.Sha1, actual.Sha1)
+	}
 }

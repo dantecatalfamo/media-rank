@@ -111,14 +111,14 @@ func (s *Server) MediaCount() (int64, error) {
 	return rowCount, nil
 }
 
-func (s *Server) HistoryCount() (int64, error) {
+func (s *Server) ComparisonCount() (int64, error) {
 	row := s.db.QueryRow("SELECT COUNT(*) FROM comparisons")
 	if row.Err() != nil {
-		return 0, fmt.Errorf("HistoryCount failed to query: %w", row.Err())
+		return 0, fmt.Errorf("ComparisonCount failed to query: %w", row.Err())
 	}
 	var rowCount int64
 	if err := row.Scan(&rowCount); err != nil {
-		return 0, fmt.Errorf("HistoryCount failed to scan row: %w", err)
+		return 0, fmt.Errorf("ComparisonCount failed to scan row: %w", err)
 	}
 
 	return rowCount, nil
@@ -253,6 +253,85 @@ func (s *Server) SortedList(descending bool) ([]MediaInfo, error) {
 	}
 	if rows.Err() != nil {
 		return nil, fmt.Errorf("ScanList error while iterating: %w", rows.Err())
+	}
+
+	return list, nil
+}
+
+type Comparison struct {
+	Id int64
+	Points int
+	Winner MediaInfo
+	Loser MediaInfo
+}
+
+const historyQuery = `
+SELECT
+  c.id id,
+  c.points points,
+  w.id winner_id, w.path winner_path, w.sha1sum winner_sha1sum, w.score winner_score, w.matches winner_matches,
+  l.id loser_id, l.path loser_path, l.sha1sum loser_sha1sum, l.score loser_score, l.matches loser_matches
+FROM comparisons c
+JOIN media w ON c.winner_id = w.id
+JOIN media l ON c.loser_id = l.id
+ORDER BY id DESC
+`
+func (s *Server) Comparisons() ([]Comparison, error) {
+	count, err := s.ComparisonCount()
+	if err != nil {
+		return nil, fmt.Errorf("Server.History failed to get count: %w", err)
+	}
+	list := make([]Comparison, 0, count)
+
+	rows, err := s.db.Query(historyQuery)
+	if err != nil {
+		return nil, fmt.Errorf("Server.History query failed")
+	}
+
+	for rows.Next() {
+		var id int64
+		var points int
+		var winnerId int64
+		var winnerPath string
+		var winnerSha1 string
+		var winnerScore int
+		var winnerMatches int
+		var loserId int64
+		var loserPath string
+		var loserSha1 string
+		var loserScore int
+		var loserMatches int
+
+		if err := rows.Scan(
+			&id, &points,
+			&winnerId, &winnerPath, &winnerSha1, &winnerScore, &winnerMatches,
+			&loserId, &loserPath, &loserSha1, &loserScore, &loserMatches,
+		); err != nil {
+			return nil, fmt.Errorf("Server.History scan row: %w", err)
+		}
+
+		list = append(list, Comparison{
+			Id: id,
+			Points: points,
+			Winner: MediaInfo{
+				Id: winnerId,
+				Path: winnerPath,
+				Sha1: winnerSha1,
+				Score: winnerScore,
+				Matches: winnerMatches,
+			},
+			Loser: MediaInfo{
+				Id: loserId,
+				Path: loserPath,
+				Sha1: loserSha1,
+				Score: loserScore,
+				Matches: loserMatches,
+			},
+		})
+	}
+
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("Server.History rows: %w", rows.Err())
 	}
 
 	return list, nil
