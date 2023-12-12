@@ -44,10 +44,14 @@ const indexView = `
 </header>
 <div class="selection">
   <div class="image">
-    <img src="/media/{{.Media1.Id}}" title="Id: {{.Media1.Id}}, Score: {{.Media1.Score}}">
+    <a href="/media/{{.Media1.Id}}" target="_blank">
+      <img src="/media/{{.Media1.Id}}" title="Id: {{.Media1.Id}}, Score: {{.Media1.Score}}, Path: {{.Media1.Path}}">
+    </a>
   </div>
   <div class="image">
-    <img src="/media/{{.Media2.Id}}" title="Id: {{.Media2.Id}}, Score: {{.Media2.Score}}">
+    <a href="/media/{{.Media2.Id}}" target="_blank">
+      <img src="/media/{{.Media2.Id}}" title="Id: {{.Media2.Id}}, Score: {{.Media2.Score}}, Path: {{.Media2.Path}}">
+    </a>
   </div>
   <form action="/vote" method="POST">
     <input type="hidden" name="loser" value="{{.Media2.Id}}">

@@ -23,6 +23,7 @@ type IndexArgs struct {
 func (c *Controller) Index(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.New("index").Parse(indexView)
 	if err != nil {
+		http.Error(w, "failed to parse template", 500)
 		log.Printf("Controller.Index failed to parse index template: %s", err)
 		return
 	}
