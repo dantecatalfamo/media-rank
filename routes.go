@@ -8,4 +8,5 @@ func SetupRoutes(s *Server) {
 	http.HandleFunc("/media/", controller.Media)
 	http.HandleFunc("/vote", controller.Vote)
 	http.HandleFunc("/list", controller.List)
+	http.HandleFunc("/history", controller.History)
 }

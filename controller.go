@@ -123,3 +123,24 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (c *Controller) History(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.New("History").Parse(historyTmpl)
+	if err != nil {
+		log.Printf("Controller.History failed to parse template: %s", err)
+		http.Error(w, "internal error", 500)
+		return
+	}
+	comparisons, err := c.s.Comparisons()
+	if err != nil {
+		log.Printf("Controller.Historyfailed to get comparisons: %s", err)
+		http.Error(w, "DB failure", 500)
+		return
+	}
+	args := struct { Comparisons []Comparison }{ Comparisons: comparisons }
+	if err := tmpl.Execute(w, args); err != nil {
+		log.Printf("Controller.History failed to execute template: %s", err)
+		http.Error(w, "failed to execute template", 500)
+		return
+	}
+}

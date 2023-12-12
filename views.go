@@ -40,7 +40,7 @@ const indexView = `
 <body>
   <header>
     <h1>Media Rank</h1>
-    <div><a href="/list">Ranked List</a></div>
+    <div><a href="/list">Ranked List</a> <a href="/history">History</a></div>
   </header>
   <div class="selection">
     <div class="image">
@@ -106,7 +106,7 @@ const listView = `
 <body>
   <header>
     <h1>Media Rank</h1>
-    <div><a href="/">Face Off</a></div>
+    <div><a href="/">Face Off</a> <a href="/history">History</a></div>
   </header>
   <table>
   <tr>
@@ -119,6 +119,59 @@ const listView = `
       <td class="table-number">{{$i}}</td>
       <td class="table-score">{{$e.Score}}</td>
       <td class="table-image"><a href="/media/{{$e.Id}}" target="_blank"><img title={{.Path}} src="/media/{{$e.Id}}" loading="lazy"></a></td>
+    </tr>
+  {{end}}
+  </table>
+</body>
+</html>
+`
+
+const historyTmpl = `
+<!DOCTYPE html>
+<html>
+<head>
+<title>Media Rank</title>
+<style>
+  html {
+    font-family: "Open Sans", "Helvetica", "sans";
+  }
+  table {
+    margin: auto;
+  }
+  .table-score {
+    padding-right: 15px;
+    padding-left: 15px;
+    text-align: center;
+  }
+  th {
+    border-bottom: 1px solid black;
+  }
+  img {
+    max-height: 100px;
+    max-width: 100px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Media Rank</h1>
+    <div><a href="/">Face Off</a> <a href="/list">Ranked List</a></div>
+  </header>
+  <table>
+  <tr>
+    <th>Winner</th>
+    <th>Points</th>
+    <th>Loser</th>
+  </tr>
+  {{range .Comparisons}}
+    <tr>
+      <td><a href="/media/{{.Winner.Id}}" target="_blank"><img src="/media/{{.Winner.Id}}" title="{{.Winner.Path}}" loading="lazy"></a></td>
+      <td class="table-score">{{.Points}}</td>
+      <td><a href="/media/{{.Loser.Id}}" target="_blank"><img src="/media/{{.Loser.Id}}" title="{{.Loser.Path}}" loading="lazy"></a></td>
     </tr>
   {{end}}
   </table>
