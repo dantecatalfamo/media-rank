@@ -16,6 +16,7 @@ const indexView = `
   }
   img {
     max-width: 100%;
+    max-height: 80vh;
   }
   .image {
     display: flex;
