@@ -6,7 +6,10 @@ const indexView = `
 <head>
 <title>Media Rank</title>
 <style>
-  .container {
+  html {
+    font-family: "Open Sans", "Helvetica", "sans";
+  }
+  .selection {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 1em;
@@ -25,10 +28,21 @@ const indexView = `
   input[type=submit] {
     font-size: larger;
   }
+  h1 {
+    margin-bottom: 10px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
 </style>
 </head>
 <body>
-<div class="container">
+<header>
+  <h1>Media Rank</h1>
+  <div><a href="/list">Ranked List</a></div>
+</header>
+<div class="selection">
   <div class="image">
     <img src="/media/{{.Media1.Id}}" title="Id: {{.Media1.Id}}, Score: {{.Media1.Score}}">
   </div>
@@ -56,35 +70,51 @@ const listView = `
 <head>
 <title>Media Rank</title>
 <style>
+  html {
+    font-family: "Open Sans", "Helvetica", "sans";
+  }
   table {
     margin: auto;
   }
   .table-number, .table-score {
     text-align: right;
   }
+  .table-number {
+    font-weight: bold;
+  }
+  .table-score {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
   th {
     border-bottom: 1px solid black;
   }
   img {
-    max-height: 80px;
-    max-width: 80px;
+    max-height: 100px;
+    max-width: 100px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
   }
 </style>
 </head>
 <body>
+  <header>
+    <h1>Media Rank</h1>
+    <div><a href="/">Face Off</a></div>
+  </header>
   <table>
   <tr>
     <th>Rank</th>
     <th>Score</th>
-    <th>File</th>
     <th>Preview</th>
   </tr>
   {{range $i, $e := .List}}
     <tr>
       <td class="table-number">{{$i}}</td>
       <td class="table-score">{{$e.Score}}</td>
-      <td class="table-path">{{.Path}}</a></td>
-      <td class="table-image"><a href="/media/{{$e.Id}}"><img src="/media/{{$e.Id}}" loading="lazy"></a></td>
+      <td class="table-image"><a href="/media/{{$e.Id}}"><img title={{.Path}} src="/media/{{$e.Id}}" loading="lazy"></a></td>
     </tr>
   {{end}}
   </table>
