@@ -279,13 +279,13 @@ ORDER BY id DESC
 func (s *Server) Comparisons() ([]Comparison, error) {
 	count, err := s.ComparisonCount()
 	if err != nil {
-		return nil, fmt.Errorf("Server.History failed to get count: %w", err)
+		return nil, fmt.Errorf("Server.Comparisons failed to get count: %w", err)
 	}
 	list := make([]Comparison, 0, count)
 
 	rows, err := s.db.Query(historyQuery)
 	if err != nil {
-		return nil, fmt.Errorf("Server.History query failed")
+		return nil, fmt.Errorf("Server.Comparisons query failed")
 	}
 
 	for rows.Next() {
@@ -307,7 +307,7 @@ func (s *Server) Comparisons() ([]Comparison, error) {
 			&winnerId, &winnerPath, &winnerSha1, &winnerScore, &winnerMatches,
 			&loserId, &loserPath, &loserSha1, &loserScore, &loserMatches,
 		); err != nil {
-			return nil, fmt.Errorf("Server.History scan row: %w", err)
+			return nil, fmt.Errorf("Server.Comparisons scan row: %w", err)
 		}
 
 		list = append(list, Comparison{
@@ -331,7 +331,7 @@ func (s *Server) Comparisons() ([]Comparison, error) {
 	}
 
 	if rows.Err() != nil {
-		return nil, fmt.Errorf("Server.History rows: %w", rows.Err())
+		return nil, fmt.Errorf("Server.Comparisons rows: %w", rows.Err())
 	}
 
 	return list, nil
