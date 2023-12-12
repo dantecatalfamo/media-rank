@@ -301,4 +301,46 @@ func TestServer(t *testing.T) {
 			t.Errorf("expected media2 to contain id1 (%d) or id2 (%d), found %d", id1, id2, media1.Id)
 		}
 	})
+
+	t.Run("SortedList returns correctly sorted list", func(t *testing.T) {
+		s, err := NewServer(":memory:")
+		if err != nil {
+			t.Fatalf("failed to create new server: %s", err)
+		}
+		id1, err := s.InsertMedia("a", "aaa")
+		if err != nil {
+			t.Fatalf("failed to insert media: %s", err)
+		}
+		id2, err := s.InsertMedia("b", "bbb")
+		if err != nil {
+			t.Fatalf("failed to insert media: %s", err)
+		}
+		id3, err := s.InsertMedia("c", "ccc")
+		if err != nil {
+			t.Fatalf("failed to insert media: %s", err)
+		}
+		if err := s.UpdateScores(id3, id1); err != nil {
+			t.Fatalf("failed to update scores: %s", err)
+		}
+		desc, err := s.SortedList(true)
+		if err != nil {
+			t.Fatalf("failed to get sorted list: %s", err)
+		}
+		if len(desc) != 3 {
+			t.Errorf("incorrect number of items returned, expected 3, found %d", len(desc))
+		}
+		if desc[0].Id != id3 || desc[1].Id != id2 || desc[2].Id != id1 {
+			t.Error("incorrect order returned")
+		}
+		asc, err := s.SortedList(false)
+		if err != nil {
+			t.Fatalf("failed to get sorted list: %s", err)
+		}
+		if len(asc) != 3 {
+			t.Errorf("incorrect number of items returned, expected 3, found %d", len(desc))
+		}
+		if asc[0].Id != id1 || asc[1].Id != id2 || asc[2].Id != id3 {
+			t.Error("incorrect order returned")
+		}
+	})
 }

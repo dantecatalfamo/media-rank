@@ -51,9 +51,6 @@ func NewServer(dbPath string) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("new server open db: %w", err)
 	}
-	// Prevent memory-backed DBs from opening independant DBs on
-	// concurrent requests
-	db.SetMaxOpenConns(1)
 	_, err = db.Exec(schema)
 	if err != nil {
 		return nil, fmt.Errorf("new server migration: %w", err)
@@ -207,6 +204,45 @@ func (s *Server) SelectMediaForComparison() (MediaInfo, MediaInfo, error) {
 	}
 
 	return media1, media2, nil
+}
+
+func (s *Server) SortedList(descending bool) ([]MediaInfo, error) {
+	var order string
+	if descending {
+		order = "DESC"
+	} else {
+		order = "ASC"
+	}
+	query := fmt.Sprintf("SELECT id, path, sha1sum, score, matches FROM media ORDER BY score %s", order)
+	count, err := s.MediaCount()
+	if err != nil {
+		return nil, fmt.Errorf("SortedList failed to get count: %w", err)
+	}
+	list := make([]MediaInfo, 0, count)
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("SortedList query failed: %w", err)
+	}
+
+	for rows.Next() {
+		var id int64
+		var mediaPath string
+		var sha1 string
+		var score int
+		var matches int
+
+		if err := rows.Scan(&id, &mediaPath, &sha1, &score, &matches); err != nil {
+			return nil, fmt.Errorf("SortedList failed to scan row: %w", err)
+		}
+
+		list = append(list, MediaInfo{Id: id, Path: mediaPath, Sha1: sha1, Score: score, Matches: matches })
+	}
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("ScanList error while iterating: %w", rows.Err())
+	}
+
+	return list, nil
 }
 
 func calculateNewEloScores(winnerScore, loserScore int) (winnerNewScore, loserNewScore int) {
