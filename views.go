@@ -80,25 +80,34 @@ const listView = `
   html {
     font-family: "Open Sans", "Helvetica", "sans";
   }
-  table {
+  .list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+    max-width: 1200px;
     margin: auto;
   }
-  .table-number, .table-score {
-    text-align: right;
+  .list-entry {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    min-height: 100px;
   }
-  .table-number {
+  .entry-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+  }
+  .entry-number {
     font-weight: bold;
   }
-  .table-score {
-    padding-right: 15px;
-    padding-left: 15px;
-  }
-  th {
-    border-bottom: 1px solid black;
-  }
   img {
-    max-height: 100px;
-    max-width: 100px;
+    max-height: 200px;
+    max-width: 200px;
+    border-radius: 3px;
+    box-shadow: 0px 1px 2px #0000005e;
   }
   header {
     text-align: center;
@@ -111,20 +120,17 @@ const listView = `
     <h1>Media Rank</h1>
     <div><a href="/">Face Off</a> <a href="/history">History</a></div>
   </header>
-  <table>
-  <tr>
-    <th>Rank</th>
-    <th>Score</th>
-    <th>Preview</th>
-  </tr>
+  <div class="list">
   {{range $i, $e := .List}}
-    <tr>
-      <td class="table-number">{{$i}}</td>
-      <td class="table-score">{{$e.Score}}</td>
-      <td class="table-image"><a href="/media/{{$e.Id}}" target="_blank"><img title={{.Path}} src="/media/{{$e.Id}}" loading="lazy"></a></td>
-    </tr>
+    <div class="list-entry">
+      <div class="entry-image"><a href="/media/{{$e.Id}}" target="_blank"><img title={{.Path}} src="/media/{{$e.Id}}" loading="lazy"></a></div>
+      <div class="entry-info">
+        <span class="entry-number">{{$i}}</span>
+        <span class="entry-score">({{$e.Score}})</span>
+      </div>
+    </div>
   {{end}}
-  </table>
+  </div>
 </body>
 </html>
 `
@@ -149,9 +155,17 @@ const historyTmpl = `
   th {
     border-bottom: 1px solid black;
   }
+  .winner {
+    text-align: right;
+  }
+  .loser {
+    text-align: left;
+  }
   img {
-    max-height: 100px;
-    max-width: 100px;
+    max-height: 200px;
+    max-width: 200px;
+    border-radius: 3px;
+    box-shadow: 0px 1px 2px #0000005e;
   }
   header {
     text-align: center;
@@ -172,9 +186,9 @@ const historyTmpl = `
   </tr>
   {{range .Comparisons}}
     <tr>
-      <td><a href="/media/{{.Winner.Id}}" target="_blank"><img src="/media/{{.Winner.Id}}" title="{{.Winner.Path}}" loading="lazy"></a></td>
-      <td class="table-score">{{.Points}}</td>
-      <td><a href="/media/{{.Loser.Id}}" target="_blank"><img src="/media/{{.Loser.Id}}" title="{{.Loser.Path}}" loading="lazy"></a></td>
+      <td class="winner"><a href="/media/{{.Winner.Id}}" target="_blank"><img src="/media/{{.Winner.Id}}" title="{{.Winner.Path}}" loading="lazy"></a></td>
+      <td class="table-score">&lt;{{.Points}}&lt;</td>
+      <td class="loser"><a href="/media/{{.Loser.Id}}" target="_blank"><img src="/media/{{.Loser.Id}}" title="{{.Loser.Path}}" loading="lazy"></a></td>
     </tr>
   {{end}}
   </table>
