@@ -188,6 +188,7 @@ func (s *Server) SelectMediaForComparison() (MediaInfo, MediaInfo, error) {
 	if err != nil {
 		return MediaInfo{}, MediaInfo{}, fmt.Errorf("select media for comparison query failed: %w", err)
 	}
+	defer rows.Close()
 
 	var id1, id2 int64
 	if !rows.Next() {
@@ -237,6 +238,7 @@ func (s *Server) SortedList(descending bool) ([]MediaInfo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("SortedList query failed: %w", err)
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var id int64
@@ -287,6 +289,7 @@ func (s *Server) Comparisons() ([]Comparison, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Server.Comparisons query failed")
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var id int64
