@@ -187,7 +187,7 @@ const historyTmpl = `
   {{range .Comparisons}}
     <tr>
       <td class="winner"><a href="/media/{{.Winner.Id}}" target="_blank"><img src="/media/{{.Winner.Id}}" title="{{.Winner.Path}}" loading="lazy"></a></td>
-      <td class="table-score">&lt;{{.Points}}&lt;</td>
+      <td class="table-score">{{.Points}}</td>
       <td class="loser"><a href="/media/{{.Loser.Id}}" target="_blank"><img src="/media/{{.Loser.Id}}" title="{{.Loser.Path}}" loading="lazy"></a></td>
     </tr>
   {{end}}
