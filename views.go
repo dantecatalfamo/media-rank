@@ -17,6 +17,8 @@ const indexView = `
   img {
     max-width: 100%;
     max-height: 80vh;
+    border-radius: 4px;
+    box-shadow: 0px 1px 2px #0000005e;
   }
   .image {
     display: flex;
