@@ -34,41 +34,48 @@ func isMediaFile(path string) bool {
 	return false
 }
 
-func scanMedia(ctx context.Context, server *Server, mediaPath string) {
-	log.Printf("beginning scan of path %s\n", mediaPath)
+func scanMedia(ctx context.Context, server *Server, mediaPath string) <-chan error {
+	errChan := make(chan error, 1)
 
-	err := filepath.WalkDir(mediaPath, func(path string, d fs.DirEntry, err error) error {
-		if ctx.Err() != nil {
-			return ctx.Err()
-		}
-		if d.IsDir() && strings.Contains(d.Name(), ".git") {
-			fmt.Printf("[#%s]", d.Name())
-			return filepath.SkipDir
-		} else if d.IsDir() {
-			fmt.Printf("[%s]", path)
-			return nil
-		} else if !isMediaFile(path) || !d.Type().IsRegular() {
-			return nil
-		}
-		fileData, err := ioutil.ReadFile(path)
-		if err != nil {
-			log.Printf("error reading file: %s \"%s\"", err, path)
-			return nil
-		}
-		sha1sum := sha1.Sum(fileData)
-		sha1hex := fmt.Sprintf("%x", sha1sum)
-		_, err = server.InsertMedia(path, sha1hex)
-		if err != nil {
-			return fmt.Errorf("failed to insert scanned media: %w", err)
-		}
-		fmt.Printf(".")
+	go func() {
+		log.Printf("beginning scan of path %s\n", mediaPath)
 
-		return nil
-	})
-	fmt.Println()
-	if err != nil {
-		log.Printf("scanMedia: %s\n", err)
-	} else {
-		log.Println("finished scanning files")
-	}
+		err := filepath.WalkDir(mediaPath, func(path string, d fs.DirEntry, err error) error {
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
+			if d.IsDir() && strings.Contains(d.Name(), ".git") {
+				fmt.Printf("[#%s]", d.Name())
+				return filepath.SkipDir
+			} else if d.IsDir() {
+				fmt.Printf("[%s]", path)
+				return nil
+			} else if !isMediaFile(path) || !d.Type().IsRegular() {
+				return nil
+			}
+			fileData, err := ioutil.ReadFile(path)
+			if err != nil {
+				log.Printf("error reading file: %s \"%s\"", err, path)
+				return nil
+			}
+			sha1sum := sha1.Sum(fileData)
+			sha1hex := fmt.Sprintf("%x", sha1sum)
+			_, err = server.InsertMedia(path, sha1hex)
+			if err != nil {
+				return fmt.Errorf("failed to insert scanned media: %w", err)
+			}
+			fmt.Printf(".")
+
+			return nil
+		})
+		fmt.Println()
+		if err != nil {
+			log.Printf("scanMedia: %s\n", err)
+		} else {
+			log.Println("finished scanning files")
+		}
+		errChan <- err
+	}()
+
+	return errChan
 }

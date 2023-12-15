@@ -32,7 +32,7 @@ func main() {
 
 	ctx := context.Background()
 	log.Println("beginning media scan")
-	go scanMedia(ctx, server, ".")
+	scanMedia(ctx, server, ".")
 
 	log.Println("setting up routes")
 	SetupRoutes(server)
