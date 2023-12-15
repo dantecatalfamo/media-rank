@@ -44,6 +44,9 @@ func scanMedia(ctx context.Context, server *Server, mediaPath string) <-chan err
 			if ctx.Err() != nil {
 				return ctx.Err()
 			}
+			if err != nil {
+				log.Printf("scanMedia WalkDirFunc: %s", err)
+			}
 			if d.IsDir() && strings.Contains(d.Name(), ".git") {
 				fmt.Printf("[#%s]", d.Name())
 				return filepath.SkipDir
