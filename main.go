@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -29,8 +30,9 @@ func main() {
 		log.Fatalf("creating new server: %s", err)
 	}
 
+	ctx := context.Background()
 	log.Println("beginning media scan")
-	go scanMedia(server, ".")
+	go scanMedia(ctx, server, ".")
 
 	log.Println("setting up routes")
 	SetupRoutes(server)

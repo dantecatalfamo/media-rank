@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/sha1"
 	"fmt"
 	"io/fs"
@@ -33,9 +34,13 @@ func isMediaFile(path string) bool {
 	return false
 }
 
-func scanMedia(server *Server, mediaPath string) error {
+func scanMedia(ctx context.Context, server *Server, mediaPath string) {
 	log.Printf("beginning scan of path %s\n", mediaPath)
-	filepath.WalkDir(mediaPath, func(path string, d fs.DirEntry, err error) error {
+
+	err := filepath.WalkDir(mediaPath, func(path string, d fs.DirEntry, err error) error {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
 		if d.IsDir() && strings.Contains(d.Name(), ".git") {
 			fmt.Printf("[#%s]", d.Name())
 			return filepath.SkipDir
@@ -61,6 +66,9 @@ func scanMedia(server *Server, mediaPath string) error {
 		return nil
 	})
 	fmt.Println()
-	log.Println("finished scanning files")
-	return nil
+	if err != nil {
+		log.Printf("scanMedia: %s\n", err)
+	} else {
+		log.Println("finished scanning files")
+	}
 }
