@@ -144,22 +144,33 @@ const historyTmpl = `
   html {
     font-family: "Open Sans", "Helvetica", "sans";
   }
-  table {
+  .heading {
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  .list {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    max-width: fit-content;
     margin: auto;
   }
-  .table-score {
-    padding-right: 15px;
-    padding-left: 15px;
-    text-align: center;
-  }
-  th {
-    border-bottom: 1px solid black;
-  }
   .winner {
-    text-align: right;
+    justify-content: right;
+  }
+  .score {
+    margin: 20px;
+    display: flex;
+    align-items: center;
   }
   .loser {
-    text-align: left;
+    justify-content: left;
+  }
+  .image {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    min-height: 100px;
   }
   img {
     max-height: 200px;
@@ -178,20 +189,16 @@ const historyTmpl = `
     <h1>Media Rank</h1>
     <div><a href="/">Face Off</a> <a href="/list">Ranked List</a></div>
   </header>
-  <table>
-  <tr>
-    <th>Winner</th>
-    <th>Points</th>
-    <th>Loser</th>
-  </tr>
+  <div class="list">
+  <span class="heading">Winner</span>
+  <span class="heading">Points</span>
+  <span class="heading">Loser</span>
   {{range .Comparisons}}
-    <tr>
-      <td class="winner"><a href="/media/{{.Winner.Id}}" target="_blank"><img src="/media/{{.Winner.Id}}" title="{{.Winner.Path}}" loading="lazy"></a></td>
-      <td class="table-score">{{.Points}}</td>
-      <td class="loser"><a href="/media/{{.Loser.Id}}" target="_blank"><img src="/media/{{.Loser.Id}}" title="{{.Loser.Path}}" loading="lazy"></a></td>
-    </tr>
+    <div class="winner image"><a href="/media/{{.Winner.Id}}" target="_blank"><img src="/media/{{.Winner.Id}}" title="{{.Winner.Path}}" loading="lazy"></a></div>
+    <div class="score">{{.Points}}</div>
+    <div class="loser image"><a href="/media/{{.Loser.Id}}" target="_blank"><img src="/media/{{.Loser.Id}}" title="{{.Loser.Path}}" loading="lazy"></a></div>
   {{end}}
-  </table>
+  </div>
 </body>
 </html>
 `
