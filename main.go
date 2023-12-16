@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -29,7 +30,12 @@ func main() {
 
 	ctx := context.Background()
 	log.Println("beginning media scan")
-	scanMedia(ctx, server, ".")
+	errChan := scanMedia(ctx, server, ".")
+	go func() {
+		for err := range(errChan) {
+			fmt.Println(err)
+		}
+	}()
 
 	log.Println("setting up routes")
 	SetupRoutes(server)
