@@ -42,12 +42,6 @@ func scanMedia(ctx context.Context, server *Server, mediaPath string) <-chan err
 	workChan := make(chan string)
 	var wg sync.WaitGroup
 
-	go func() {
-		for err := range(errChan) {
-			fmt.Println(err)
-		}
-	}()
-
 	for i := 0; i < ncpu; i++ {
 		wg.Add(1)
 		go processMedia(server, &wg, workChan, errChan)
