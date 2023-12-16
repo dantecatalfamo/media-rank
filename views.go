@@ -9,6 +9,11 @@ const indexView = `
   html {
     font-family: "Open Sans", "Helvetica", "sans";
   }
+  .link {
+    margin: 1em;
+    font-weight: bold;
+    text-decoration: none;
+  }
   .selection {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -31,9 +36,6 @@ const indexView = `
   input[type=submit] {
     font-size: larger;
   }
-  h1 {
-    margin-bottom: 10px;
-  }
   header {
     text-align: center;
     margin-bottom: 40px;
@@ -43,7 +45,7 @@ const indexView = `
 <body>
   <header>
     <h1>Media Rank</h1>
-    <div><a href="/list">Ranked List</a> <a href="/history">History</a></div>
+    <div><a class="link" href="/list">Ranked List</a><a class="link" href="/history">History</a></div>
   </header>
   <div class="selection">
     <div class="image">
@@ -79,6 +81,11 @@ const listView = `
 <style>
   html {
     font-family: "Open Sans", "Helvetica", "sans";
+  }
+  .link {
+    margin: 1em;
+    font-weight: bold;
+    text-decoration: none;
   }
   .list {
     display: grid;
@@ -118,7 +125,7 @@ const listView = `
 <body>
   <header>
     <h1>Media Rank</h1>
-    <div><a href="/">Face Off</a> <a href="/history">History</a></div>
+    <div><a class="link" href="/">Face Off</a><a class="link" href="/history">History</a></div>
   </header>
   <div class="list">
   {{range $i, $e := .List}}
@@ -143,6 +150,11 @@ const historyTmpl = `
 <style>
   html {
     font-family: "Open Sans", "Helvetica", "sans";
+  }
+  .link {
+    margin: 1em;
+    font-weight: bold;
+    text-decoration: none;
   }
   .heading {
     text-align: center;
@@ -187,7 +199,7 @@ const historyTmpl = `
 <body>
   <header>
     <h1>Media Rank</h1>
-    <div><a href="/">Face Off</a> <a href="/list">Ranked List</a></div>
+    <div><a class="link" href="/">Face Off</a><a class="link" href="/list">Ranked List</a></div>
   </header>
   <div class="list">
   <span class="heading">Winner</span>
