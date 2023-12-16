@@ -29,12 +29,27 @@ func main() {
 	}
 
 	ctx := context.Background()
-	log.Println("beginning media scan")
-	errChan := scanMedia(ctx, server, ".")
+	log.Printf("beginning media scan of %s\n", *mediaDirectory)
+	errChan, finishChan := scanMedia(ctx, server, ".")
 	go func() {
 		for err := range(errChan) {
 			fmt.Println(err)
 		}
+	}()
+	go func() {
+		var finished uint = 0
+		for finish := range(finishChan) {
+			if finish {
+				fmt.Printf(".")
+			} else {
+				fmt.Printf("!")
+			}
+			finished++
+			if (finished % 100) == 0 {
+				fmt.Printf("\n{%d}", finished)
+			}
+		}
+		fmt.Printf("\nfinished media scan, total: %d\n", finished)
 	}()
 
 	log.Println("setting up routes")
