@@ -38,10 +38,15 @@ func isMediaFile(path string) bool {
 
 func scanMedia(ctx context.Context, server *Server, mediaPath string) <-chan error {
 	errChan := make(chan error, 1)
-
 	ncpu := runtime.NumCPU()
 	workChan := make(chan string)
 	var wg sync.WaitGroup
+
+	go func() {
+		for err := range(errChan) {
+			fmt.Println(err)
+		}
+	}()
 
 	for i := 0; i < ncpu; i++ {
 		wg.Add(1)
