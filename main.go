@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -14,14 +14,11 @@ const (
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "usage: %s <media directory>\n", os.Args[0])
-		os.Exit(1)
-	}
+	userAddress := flag.String("addr", address, "address:port to start the server on")
+	mediaDirectory := flag.String("media", ".", "location of media directory")
+	flag.Parse()
 
-	mediaDirectory := os.Args[1]
-
-	if err := os.Chdir(mediaDirectory); err != nil {
+	if err := os.Chdir(*mediaDirectory); err != nil {
 		log.Fatalf("failed to change to media directory: %s", err)
 	}
 
@@ -38,7 +35,7 @@ func main() {
 	SetupRoutes(server)
 
 	log.Printf("Starting server on http://%s\n", address)
-	err = http.ListenAndServe(address, nil)
+	err = http.ListenAndServe(*userAddress, nil)
 	if err != nil {
 		log.Fatalf("HTTP server failed: %s\n", err)
 	}
