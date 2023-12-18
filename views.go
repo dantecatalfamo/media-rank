@@ -40,6 +40,9 @@ const indexView = `
     text-align: center;
     margin-bottom: 40px;
   }
+  .info {
+    text-align: center;
+  }
 </style>
 </head>
 <body>
@@ -61,14 +64,30 @@ const indexView = `
     <form action="/vote" method="POST">
       <input type="hidden" name="loser" value="{{.Media2.Id}}">
       <input type="hidden" name="winner" value="{{.Media1.Id}}">
-      <input type="submit" value="Winner">
+      <input type="submit" value="Winner (a)" id="winnerLeft">
     </form>
     <form action="/vote" method="POST">
       <input type="hidden" name="loser" value="{{.Media1.Id}}">
       <input type="hidden" name="winner" value="{{.Media2.Id}}">
-      <input type="submit" value="Winner">
+      <input type="submit" value="Winner (d)" id="winnerRight">
     </form>
   </div>
+  <div class="info">
+    New Options (r)
+  </div>
+  <script>
+    const winnerLeft = document.getElementById('winnerLeft');
+    const winnerRight = document.getElementById('winnerRight');
+    document.addEventListener('keypress', (e) => {
+      if (e.key == "a") {
+        winnerLeft.click()
+      } else if (e.key == "d") {
+        winnerRight.click()
+      } else if (e.key == "r") {
+        location.reload()
+      }
+    })
+  </script>
 </body>
 </html>
 `
