@@ -51,7 +51,7 @@ func NewServer(dbPath string) (*Server, error) {
 	if dbPath == ":memory:" {
 		dbSpec = dbPath
 	} else {
-		dbSpec = fmt.Sprintf("file:%s?_journal_mode=WAL", dbPath)
+		dbSpec = fmt.Sprintf("file:%s?cache=shared&_journal_mode=WAL", dbPath)
 	}
 	db, err := sql.Open("sqlite3", dbSpec)
 	if err != nil {
