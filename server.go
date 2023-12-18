@@ -47,7 +47,13 @@ CREATE INDEX IF NOT EXISTS comparisons_loser_id_idx ON comparisons(loser_id);
 `
 
 func NewServer(dbPath string) (*Server, error) {
-	db, err := sql.Open("sqlite3", dbPath)
+	var dbSpec string
+	if dbPath == ":memory:" {
+		dbSpec = dbPath
+	} else {
+		dbSpec = fmt.Sprintf("file:%s?_journal_mode=WAL", dbPath)
+	}
+	db, err := sql.Open("sqlite3", dbSpec)
 	if err != nil {
 		return nil, fmt.Errorf("new server open db: %w", err)
 	}
