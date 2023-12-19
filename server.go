@@ -64,9 +64,12 @@ func NewServer(dbPath string) (*Server, error) {
 	return &Server{ db: db }, nil
 }
 
-
 type Server struct {
 	db *sql.DB
+}
+
+func (s *Server) Close() error {
+	return s.db.Close()
 }
 
 const insertMediaQuery = `
