@@ -5,7 +5,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -87,7 +87,7 @@ func scanMedia(ctx context.Context, server *Server, mediaPath string) (<-chan er
 
 func processMedia(server *Server, wg *sync.WaitGroup, workChan <-chan string, finishChan chan<- bool, errChan chan<- error) {
 	for path := range(workChan) {
-		fileData, err := ioutil.ReadFile(path)
+		fileData, err := os.ReadFile(path)
 		if err != nil {
 			errChan <- fmt.Errorf("processMedia error reading file \"%s\": %w ", path, err)
 			finishChan <- false
