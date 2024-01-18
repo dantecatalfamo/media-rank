@@ -126,9 +126,6 @@ const listView = `
     align-items: center;
     flex-grow: 1;
   }
-  .entry-number {
-    font-weight: bold;
-  }
   img {
     max-height: 200px;
     max-width: 200px;
@@ -149,11 +146,7 @@ const listView = `
   <div class="list">
   {{range $i, $e := .List}}
     <div class="list-entry">
-      <div class="entry-image"><a href="/media/{{$e.Id}}" target="_blank"><img title={{.Path}} src="/media/{{$e.Id}}" loading="lazy"></a></div>
-      <div class="entry-info">
-        <span class="entry-number">{{$i}}</span>
-        <span class="entry-score">({{$e.Score}})</span>
-      </div>
+      <div class="entry-image"><a href="/media/{{$e.Id}}" target="_blank"><img title="Rank: {{$i}}, Score: {{$e.Score}}, File: {{.Path}}" src="/media/{{$e.Id}}" loading="lazy"></a></div>
     </div>
   {{end}}
   </div>
