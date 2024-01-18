@@ -42,6 +42,16 @@ func scanMedia(ctx context.Context, server *Server, mediaPath string) (<-chan er
 	ncpu := runtime.NumCPU()
 	var wg sync.WaitGroup
 
+	// Mark files as deleted, files get unmarked when they appear in
+	// the scan by InsertMedia
+	if _, err := server.db.ExecContext(ctx, "UPDATE media SET deleted = true"); err != nil {
+		errChan <- fmt.Errorf("scanMedia failed to set deleted bit on db: %w", err)
+		close(errChan)
+		close(finishChan)
+		return errChan, finishChan
+	}
+
+
 	for i := 0; i < ncpu; i++ {
 		wg.Add(1)
 		go processMedia(server, &wg, workChan, finishChan, errChan)

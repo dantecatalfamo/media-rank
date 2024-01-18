@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS media (
   path TEXT NOT NULL,
   sha1sum TEXT UNIQUE NOT NULL,
   score INTEGER,
-  matches INTEGER
+  matches INTEGER,
+  deleted INTEGER DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS comparisons (
@@ -74,7 +75,7 @@ func (s *Server) Close() error {
 
 const insertMediaQuery = `
 INSERT INTO media(path, sha1sum, score, matches) VALUES (?, ?, 1500, 0)
-  ON CONFLICT(sha1sum) DO UPDATE SET path = ?
+  ON CONFLICT(sha1sum) DO UPDATE SET path = ?, deleted = false
 `
 
 func (s *Server) InsertMedia(path string, sha1sum string) (int64, error) {

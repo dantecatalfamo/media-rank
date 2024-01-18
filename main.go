@@ -33,7 +33,7 @@ func main() {
 	errChan, finishChan := scanMedia(ctx, server, ".")
 	go func() {
 		for err := range(errChan) {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	}()
 	go func() {
@@ -50,6 +50,25 @@ func main() {
 			}
 		}
 		fmt.Printf("\nfinished media scan, total: %d\n", finished)
+
+		row := server.db.QueryRow("SELECT COUNT(*) FROM media WHERE deleted = true")
+		if row.Err() != nil {
+			log.Fatalf("main failed to get number of deleted files: %s", err)
+			os.Exit(1)
+		}
+		var deletedFiles int
+		if err := row.Scan(&deletedFiles); err != nil {
+			log.Fatalf("main failed to scan deleted files: %s", err)
+			os.Exit(1)
+		}
+		if deletedFiles > 0 {
+			log.Printf("Removing %d deleted files from database", deletedFiles)
+			// Delete media marked by scanMedia
+			if _, err := server.db.Exec("DELETE FROM media WHERE deleted = true"); err != nil {
+				log.Fatalf("main failed to remove deleted media: %s", err)
+				os.Exit(1)
+			}
+		}
 	}()
 
 	log.Println("setting up routes")
