@@ -109,8 +109,8 @@ const listView = `
   .list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    grid-gap: 20px;
-    max-width: 1200px;
+    grid-gap: 5px;
+    max-width: 1840px;
     margin: auto;
   }
   .list-entry {
@@ -127,10 +127,11 @@ const listView = `
     flex-grow: 1;
   }
   img {
-    max-height: 200px;
-    max-width: 200px;
+    height: 200px;
+    width: 200px;
     border-radius: 3px;
     box-shadow: 0px 1px 2px #0000005e;
+    object-fit: cover;
   }
   header {
     text-align: center;
