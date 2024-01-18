@@ -109,8 +109,8 @@ const listView = `
   .list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    grid-gap: 5px;
-    max-width: 1840px;
+    grid-gap: 3px;
+    max-width: 1845px;
     margin: auto;
   }
   .list-entry {
