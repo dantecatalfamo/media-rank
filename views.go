@@ -118,7 +118,7 @@ const listView = `
     display: flex;
     flex-direction: column;
     justify-content: end;
-    min-height: 100px;
+    min-height: 200px;
   }
   .entry-image {
     display: flex;
