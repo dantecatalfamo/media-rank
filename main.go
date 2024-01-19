@@ -49,7 +49,8 @@ func main() {
 				fmt.Printf("\n{%d}", finished)
 			}
 		}
-		fmt.Printf("\nfinished media scan, total: %d\n", finished)
+		fmt.Println()
+		log.Printf("finished media scan, total: %d", finished)
 
 		row := server.db.QueryRow("SELECT COUNT(*) FROM media WHERE deleted = true")
 		if row.Err() != nil {
